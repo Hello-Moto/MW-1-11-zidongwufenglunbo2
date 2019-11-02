@@ -50,24 +50,25 @@ img {vertical-align: top;}
     var pictures = document.querySelector("#pics")
     var picture = document.querySelectorAll("#pics > li > img")
     var img = document.querySelectorAll("#pics > li")
+    var wrap = document.querySelector("#wrap")
     var pictureWidth = css(picture[0],"width")
     var images = ["img2/img (1).jpg","img2/img (2).jpg","img2/img (3).jpg","img2/img (4).jpg","img2/img (5).jpg"]
     var nowIndex = 0
     var nextIndex = 0
     var move = false
+    var timer = 0
     navs.forEach(function(item,index){
         item.onclick = function(){
-            navs.forEach(function(item,index){
-                item.classList.remove("active")
-            })
-            item.classList.add("active")
-
+            nextIndex = index
+            if(nextIndex > nowIndex){
+                tab(images[nowIndex],images[nextIndex],0,-pictureWidth)
+            }else if(nextIndex < nowIndex){
+                tab(images[nextIndex],images[nowIndex],-pictureWidth,0)
+            }
         }
     })
     next.onclick = function(){
-        nextIndex = nowIndex + 1
-        nextIndex = nextIndex > navs.length-1 ? 0 : nextIndex
-        tab(images[nowIndex],images[nextIndex],0,-pictureWidth)
+        toNext()
     }
     prev.onclick = function(){
         nextIndex = nowIndex - 1
@@ -75,6 +76,10 @@ img {vertical-align: top;}
         tab(images[nextIndex],images[nowIndex],-pictureWidth,0)
     }
     function tab(img1,img2,start,target){
+        if(move){
+            return
+        }
+        move = true
         img[0].innerHTML =' <img src="'+ img1 +'" />'
         img[1].innerHTML = '<img src="'+ img2 +'" />'
         css(pictures,"translateX",start)
@@ -83,12 +88,32 @@ img {vertical-align: top;}
             attr: {
                 translateX: target
             },
+            duration: 2000,
+            cb: function(){
+                move = false
+            }
         })
         nowIndex = nextIndex
         navs.forEach(function(item,index){
             item.classList.remove("active")
             navs[nowIndex].classList.add("active")
         })
+    }
+    function toNext(){
+        nextIndex = nowIndex + 1
+        nextIndex = nextIndex > navs.length-1 ? 0 : nextIndex
+        tab(images[nowIndex],images[nextIndex],0,-pictureWidth)
+    }
+    timer = setInterval(function(){
+        toNext()
+    },4000)
+    wrap.onmouseover = function(){
+        clearInterval(timer)
+    }
+    wrap.onmouseout = function(){
+        timer = setInterval(function(){
+            toNext()
+        },4000)
     }
 }.call()
 </script>
